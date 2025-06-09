@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
@@ -40,6 +41,8 @@ class CategoryController extends Controller
             ], 404);
         }
 
+        Cache::flush();
+
         return response()->json([
             'status' => true,
             'message' => 'Category retrieved successfully',
@@ -64,6 +67,7 @@ class CategoryController extends Controller
             'name' => $request->name,
         ]);
 
+        Cache::flush();
         return response()->json([
             'status' => true,
             'message' => 'Product created successfully',
@@ -93,6 +97,7 @@ class CategoryController extends Controller
             ], 500);
         }
 
+        Cache::flush();
         return response()->json([
             'status' => true,
             'message' => 'Category updated successfully',
@@ -111,6 +116,7 @@ class CategoryController extends Controller
 
         if($category->delete()){
 
+            Cache::flush();
             return response()->json([
                 'status' => true,
                 'message' => 'Category deleted successfully',

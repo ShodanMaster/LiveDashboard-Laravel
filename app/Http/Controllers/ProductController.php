@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
@@ -73,6 +74,7 @@ class ProductController extends Controller
             'name' => $request->name,
         ]);
 
+        Cache::flush();
         return response()->json([
             'status' => true,
             'message' => 'Product created successfully',
@@ -96,6 +98,7 @@ class ProductController extends Controller
         }
 
         if (!$product->update($request->all())) {
+            Cache::flush();
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to update product',
@@ -120,6 +123,7 @@ class ProductController extends Controller
         }
 
         if($product->delete()){
+            Cache::flush();
 
             return response()->json([
                 'status' => true,

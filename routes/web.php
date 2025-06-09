@@ -13,3 +13,5 @@ Route::get('get-categories', [CategoryController::class, 'getCategories'])->name
 
 Route::resource('product', ProductController::class);
 Route::get('get-products', [ProductController::class, 'getProducts'])->name('getproducts');
+
+Route::get('/dashboard-sse', [IndexController::class, 'sseDashboard']);
