@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{asset('bootstrap/bootstrap.min.css')}}">
     <link rel="stylesheet" href="{{asset('sweetalert/sweetalert2.min.css')}}">
     <link rel="stylesheet" href="{{asset('datatable/dataTables.dataTables.min.css')}}">
+<script src="{{asset('axios/axios.min.js')}}"></script>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -20,7 +21,7 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{{route('category')}}">Category</a>
+          <a class="nav-link active" aria-current="page" href="{{route('category.index')}}">Category</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#">Features</a>

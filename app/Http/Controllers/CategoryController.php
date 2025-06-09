@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
 {
@@ -12,76 +13,116 @@ class CategoryController extends Controller
         return view('category');
     }
 
-    public function getCategories(Request $request){
+    public function getCategories(){
+        $categories = Category::all();
 
-        $categories = Category::select('id', 'name');
-        if($request->ajax()){
-            return DataTables::of($categories)
-            ->addIndexColumn()
-                ->addColumn('action', function($row){
-                    return '<a href="javascript:void(0)" class="btn btn-info btn-sm editButton" data-id='. encrypt($row->id).' data-name="' . $row->name .'"  data-bs-toggle="modal" data-bs-target="#createModal">Edit</a>
-                            <a href="javascript:void(0)" class="btn btn-danger btn-sm deleteButton" data-id="'. encrypt($row->id) .'" data-name="'. $row->name .'">Delete</a>
-                    ';
-                })
-                // ->rowColumn(['action'])
-                ->make(true);
+        if($categories->isEmpty()){
+            return response()->json([
+                'status' => false,
+                'message' => 'No categories found',
+                'categories' => []
+            ], 404);
         }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Categories retrieved successfully',
+            'categories' => $categories
+        ], 200);
+    }
+
+    public function show(Category $category){
+        if(!$category){
+            return response()->json([
+                'status' => false,
+                'message' => 'category not found',
+                'categories' => []
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Category retrieved successfully',
+            'category' => $category
+        ], 200);
     }
 
     public function store(Request $request){
         // dd($request->all());
-
-        $request->validate([
-            'name' => 'required|string',
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
         ]);
-
-
-        if ($request->has('nameId') && $request->nameId !== null) {
-            $category = Category::find(decrypt($request->nameId));
-
-            if($category){
-                $category->update([
-                    'name' => $request->name,
-                ]);
-
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Category Updated Successfully!',
-                ], 200);
-            }else{
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'Category Not Found!',
-                ], 404);
-            }
+        if($validator->fails()){
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation error',
+                'categories' => $validator->errors()
+            ], 422);
         }
 
-        Category::create([
+        $categories = Category::create([
             'name' => $request->name,
         ]);
 
         return response()->json([
-            'status' => 200,
-            'message' => 'Category Saved Successfully',
+            'status' => true,
+            'message' => 'Product created successfully',
+            'categories' => $categories
+        ], 201);
+    }
+
+    public function update(Request $request, Category $category){
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation error',
+                'categories' => $validator->errors()
+            ], 422);
+        }
+
+        if (!$category->update($request->all())) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to update category',
+                'categories' => []
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Category updated successfully',
+            'categories' => $category
         ], 200);
     }
 
-    public function delete(Request $request){
-        // dd($request->all());
-
-        $category = Category::find(decrypt($request->id));
-
-        if($category){
-            $category->delete();
+    public function destroy(Category $category){
+        if(!$category){
             return response()->json([
-                'status' => 200,
-                'message' => 'Category Deleted Successfully!',
-            ], 200);
-        }else{
-            return response()->json([
-                'status' => 404,
-                'message' => 'Category Not Found!',
+                'status' => false,
+                'message' => 'Category not found',
+                'categories' => []
             ], 404);
         }
+
+        if($category->delete()){
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Category deleted successfully',
+            ], 200);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Failed to delete category',
+        ], 500);
+
     }
+
+
 }
